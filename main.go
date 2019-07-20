@@ -15,6 +15,7 @@ func main() {
         log.Fatal(err)
         defer fileHandle.Close()
     }
+
     // Initialize scanner
 	fileScanner := bufio.NewScanner(fileHandle)
 
