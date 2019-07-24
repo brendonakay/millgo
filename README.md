@@ -13,4 +13,4 @@ Go implementation of Mill
 
 ### Dependencies
  - YAML
-  - go get gopkg.in/yaml.v2
+   - go get gopkg.in/yaml.v2
