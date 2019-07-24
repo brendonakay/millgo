@@ -59,3 +59,6 @@ type EmployeeInfo struct {
 	EmployeeId   string
 	Value        string
 }
+
+type YamlConfig struct {
+}

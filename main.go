@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 func main() {
-
 	// Open file
 	fileHandle, err := os.Open("/Users/brendon/workspace/tmp/Jun-26-00_00_00-05_59_59-2019.psvlog")
 	if err != nil {

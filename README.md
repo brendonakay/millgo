@@ -10,3 +10,7 @@ Go implementation of Mill
  - [ ] Write a transofmration pipeline stage
  - [ ] Write an errored rows pipeline stage
  - [ ] Write a successful rows pipeline stage
+
+### Dependencies
+ - YAML
+  - go get gopkg.in/yaml.v2
