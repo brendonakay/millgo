@@ -51,10 +51,10 @@ type EmployeeInfo struct {
 
 type YamlConfig struct {
 	AuditLog struct {
-		Timestamp     int `yaml:"timestamp"`
-		PatientId     int `yaml:"patient_id"`
-		EmployeeId    int `yaml:"employee_id"`
-		access_action int `yaml:"access_action"`
+		Timestamp    int `yaml:"timestamp"`
+		PatientId    int `yaml:"patient_id"`
+		EmployeeId   int `yaml:"employee_id"`
+		AccessAction int `yaml:"access_action"`
 		//}
 
 		//PatientInfo struct {
@@ -71,5 +71,5 @@ type YamlConfig struct {
 		//		Department int
 		//		FullName   int
 		//	}
-	}
+	} `yaml:"audit_log"`
 }

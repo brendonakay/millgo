@@ -11,14 +11,15 @@ import (
 	"millgo/packages"
 )
 
-func parseYaml(yamlFile []byte) *millgo.YamlConfig {
+func parseYaml(yamlFile []byte) millgo.YamlConfig {
 	yamlConfig := millgo.YamlConfig{}
 
 	err := yaml.Unmarshal(yamlFile, &yamlConfig)
+	fmt.Printf("--- yamlConfig:\n%v\n\n", yamlConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return &yamlConfig
+	return yamlConfig
 }
 
 func main() {
