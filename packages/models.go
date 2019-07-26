@@ -1,16 +1,5 @@
 package millgo
 
-/*
-AUDIT_LOG = '"EVIDENCE"|"AUDIT LOG"|"{0[timestamp]}"|"{0[patient_id]}"|"{0[employee_id]}"
-  |"{0[access_action]}"|"{0[employee_role]}"|"{0[machine_id]}"|"{0[data_field]}"
-  |"{0[source]}"|"{0[doc_access_type]}"'
-AUDIT_LOG_V2 = '"EVIDENCE"|"AUDIT LOG"|"{0[timestamp]}"|"{0[patient_id]}"|"{0[employee_id]}"
-  |"{0[access_action]}"|"{0[employee_role]}"|"{0[machine_id]}"|"{0[data_field]}"
-  |"{0[source]}"|"{0[doc_access_type]}"|"{0[encounter_details]}"|"{0[additional_data]}"'
-PATIENT_INFO = '"PATIENT INFO"|"{field}"|"{timestamp}"|"{patient_id}"|"{value}"'
-EMPLOYEE_INFO = '"EMPLOYEE INFO"|"{field}"|"{timestamp}"|"{employee_id}"|"{value}"'
-*/
-
 /* TODO
 - turn this into JSON
 */
@@ -58,4 +47,29 @@ type EmployeeInfo struct {
 	TimeStamp    string
 	EmployeeId   string
 	Value        string
+}
+
+type YamlConfig struct {
+	AuditLog struct {
+		Timestamp    int `yaml:"timestamp"`
+		PatientId    int `yaml:"patient_id"`
+		EmployeeId   int `yaml:"employee_id"`
+		AccessAction int `yaml:"access_action"`
+		//}
+
+		//PatientInfo struct {
+		//	PatientId int
+		//	Fields    struct {
+		//		Dob      int
+		//		FullName int
+		//	}
+		//}
+
+		//EmployeeInfo struct {
+		//	EmployeetId int
+		//	Fields      struct {
+		//		Department int
+		//		FullName   int
+		//	}
+	} `yaml:"audit_log"`
 }
