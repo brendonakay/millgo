@@ -61,4 +61,26 @@ type EmployeeInfo struct {
 }
 
 type YamlConfig struct {
+	AuditLog struct {
+		Timestamp     int
+		PatientId     int
+		EmployeeId    int
+		access_action int
+	}
+
+	PatientInfo struct {
+		PatientId int
+		Fields    struct {
+			Dob      int
+			FullName int
+		}
+	}
+
+	EmployeeInfo struct {
+		EmployeetId int
+		Fields      struct {
+			Department int
+			FullName   int
+		}
+	}
 }
