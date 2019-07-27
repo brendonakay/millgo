@@ -35,7 +35,7 @@ func parseYaml(yamlFile []byte) millgo.YamlConfig {
 
 func main() {
 	// Parse YAML
-	yamlBin, err := os.Open("example.yaml")
+	yamlBin, err := os.Open("data/example.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func main() {
 		} else if err != nil {
 			log.Fatal(err)
 		}
-		accessLogStruct = csvToAccessLogStruct(line)
+		accessLogStruct := csvToAccessLogStruct(line, yaml)
 		// TODO: Print statement
 		fmt.Printf("--- access log:\n%v\n\n", accessLogStruct)
 	}
