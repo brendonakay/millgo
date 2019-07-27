@@ -1,9 +1,7 @@
 package main
 
 import (
-	//	"bufio"
 	"encoding/csv"
-	//"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -13,38 +11,6 @@ import (
 	"gopkg.in/yaml.v2"
 	"millgo/packages"
 )
-
-/*
-// Unmarshal CSV line to millgo AccessLog struct
-// return AccessLog struct CSV line
-// TODO: rename?
-func csvToAccessLogStruct(csvLine []string, yaml millgo.YamlConfig) millgo.AuditLog {
-	csvLineStruct := millgo.AuditLog{
-		Evidence:     millgo.EVIDENCE,
-		AuditLog:     millgo.AUDIT_LOG,
-		Timestamp:    yaml.Timestamp,
-		PatientId:    yaml.PatientId,
-		EmployeeId:   yaml.EmployeeId,
-		AccessAction: yaml.AccessAction,
-	}
-	return csvLineStruct
-}
-*/
-
-/*
-// Parse YAML files.
-// return millgo YamlConfig struct
-func parseYaml(yamlFile []byte) millgo.YamlConfig {
-	yamlConfig := make(map[interface{}]interface{})
-	//yamlConfig := millgo.YamlConfig{}
-
-	err := yaml.Unmarshal(yamlFile, &yamlConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return yamlConfig
-}
-*/
 
 func main() {
 	// Parse YAML
