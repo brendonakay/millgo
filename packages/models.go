@@ -1,5 +1,12 @@
 package millgo
 
+const (
+	AUDIT_LOG     = "AUDIT_LOG"
+	EMPLOYEE_INFO = "EMPLOYEE INFO"
+	EVIDENCE      = "EVIDENCE"
+	PATIENT_INFO  = "PATIENT INFO"
+)
+
 /* TODO
 - turn this into JSON
 */
@@ -55,21 +62,21 @@ type YamlConfig struct {
 		PatientId    int `yaml:"patient_id"`
 		EmployeeId   int `yaml:"employee_id"`
 		AccessAction int `yaml:"access_action"`
-		//}
-
-		//PatientInfo struct {
-		//	PatientId int
-		//	Fields    struct {
-		//		Dob      int
-		//		FullName int
-		//	}
-		//}
-
-		//EmployeeInfo struct {
-		//	EmployeetId int
-		//	Fields      struct {
-		//		Department int
-		//		FullName   int
-		//	}
 	} `yaml:"audit_log"`
+
+	//	PatientInfo struct {
+	//		PatientId int
+	//		Field     struct {
+	//			Dob      int
+	//			FullName int
+	//		}
+	//	}
+	//
+	//	EmployeeInfo struct {
+	//		EmployeetId int
+	//		Fields      struct {
+	//			Department int
+	//			FullName   int
+	//		}
+	//	}
 }

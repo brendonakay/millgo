@@ -1,8 +1,9 @@
 package main
 
 import (
-	//	"bufio"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,19 +12,9 @@ import (
 	"millgo/packages"
 )
 
-func parseYaml(yamlFile []byte) millgo.YamlConfig {
-	yamlConfig := millgo.YamlConfig{}
-
-	err := yaml.Unmarshal(yamlFile, &yamlConfig)
-	fmt.Printf("--- yamlConfig:\n%v\n\n", yamlConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return yamlConfig
-}
-
 func main() {
-	yamlBin, err := os.Open("example.yaml")
+	// Parse YAML
+	yamlBin, err := os.Open("data/example.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,24 +27,50 @@ func main() {
 
 	fmt.Printf("%s", yamlFile)
 
-	yaml := parseYaml(yamlFile)
+	//yaml := parseYaml(yamlFile)
+	yamlConfig := millgo.YamlConfig{}
+	//yamlConfig := make(map[interface{}]interface{})
 
-	fmt.Printf("--- yaml:\n%v\n\n", yaml)
+	err = yaml.Unmarshal(yamlFile, &yamlConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	/*
-		// Open file
-		fileHandle, err := os.Open("/Users/brendon/workspace/tmp/Jun-26-00_00_00-05_59_59-2019.psvlog")
-		if err != nil {
-			log.Fatalf(err)
+	fmt.Printf("--- yaml:\n%v\n\n", yamlConfig)
+
+	fmt.Printf("%v", yamlConfig.AuditLog.Timestamp)
+
+	// Open file
+	fileHandle, err := os.Open("data/audit_log_example.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fileHandle.Close()
+
+	// Init CSV File reader
+	csvReader := csv.NewReader(fileHandle)
+
+	// Process CSV lines to struct
+	// TODO: Can this be a goroutine?
+	for {
+		line, err := csvReader.Read()
+		fmt.Printf("--- csv line:\n%s\n\n", line)
+		if err == io.EOF {
+			fmt.Printf("END OF FILE")
+			break
+		} else if err != nil {
+			log.Fatal(err)
 		}
-		defer fileHandle.Close()
-
-		// Initialize scanner
-		fileScanner := bufio.NewScanner(fileHandle)
-
-		// Read out scanner
-		for fileScanner.Scan() {
-			fmt.Println(fileScanner.Text())
+		auditLogStruct := millgo.AuditLog{
+			Evidence:     millgo.EVIDENCE,
+			AuditLog:     millgo.AUDIT_LOG,
+			Timestamp:    line[yamlConfig.AuditLog.Timestamp],
+			PatientId:    line[yamlConfig.AuditLog.PatientId],
+			EmployeeId:   line[yamlConfig.AuditLog.EmployeeId],
+			AccessAction: line[yamlConfig.AuditLog.AccessAction],
 		}
-	*/
+		// TODO: Print statement
+		// This should probably send value to channel
+		fmt.Printf("--- access log:\n%v\n\n", auditLogStruct)
+	}
 }

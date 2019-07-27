@@ -1,0 +1,8 @@
+{
+	"audit_log": {
+		"timestamp": 0,
+		"patient_id": 1,
+		"employee_id": 2,
+		"access_action": 3
+	}
+}
