@@ -13,6 +13,7 @@ Go implementation of Mill
  - [ ] Write an errored rows pipeline stage
  - [ ] Write a successful rows pipeline stage
  - [ ] Split up project packages per domain
+   - This includes models, utils, all the things
 
 ### Dependencies
  - YAML
