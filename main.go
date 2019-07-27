@@ -84,7 +84,7 @@ func main() {
 	// Init CSV File reader
 	csvReader := csv.NewReader(fileHandle)
 
-	// Process CSV lines
+	// Process CSV lines to struct
 	// TODO: Can this be a goroutine?
 	for {
 		line, err := csvReader.Read()
@@ -104,6 +104,7 @@ func main() {
 			AccessAction: line[yamlConfig.AuditLog.AccessAction],
 		}
 		// TODO: Print statement
+		// This should probably send value to channel
 		fmt.Printf("--- access log:\n%v\n\n", auditLogStruct)
 	}
 }
