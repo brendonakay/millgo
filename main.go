@@ -3,7 +3,9 @@ package main
 import (
 	//	"bufio"
 	"encoding/csv"
+	//"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,13 +14,14 @@ import (
 	"millgo/packages"
 )
 
+/*
 // Unmarshal CSV line to millgo AccessLog struct
 // return AccessLog struct CSV line
 // TODO: rename?
 func csvToAccessLogStruct(csvLine []string, yaml millgo.YamlConfig) millgo.AuditLog {
 	csvLineStruct := millgo.AuditLog{
-		Evidence:     EVIDENCE,
-		AuditLog:     AUDIT_LOG,
+		Evidence:     millgo.EVIDENCE,
+		AuditLog:     millgo.AUDIT_LOG,
 		Timestamp:    yaml.Timestamp,
 		PatientId:    yaml.PatientId,
 		EmployeeId:   yaml.EmployeeId,
@@ -26,11 +29,14 @@ func csvToAccessLogStruct(csvLine []string, yaml millgo.YamlConfig) millgo.Audit
 	}
 	return csvLineStruct
 }
+*/
 
+/*
 // Parse YAML files.
 // return millgo YamlConfig struct
 func parseYaml(yamlFile []byte) millgo.YamlConfig {
-	yamlConfig := millgo.YamlConfig{}
+	yamlConfig := make(map[interface{}]interface{})
+	//yamlConfig := millgo.YamlConfig{}
 
 	err := yaml.Unmarshal(yamlFile, &yamlConfig)
 	if err != nil {
@@ -38,6 +44,7 @@ func parseYaml(yamlFile []byte) millgo.YamlConfig {
 	}
 	return yamlConfig
 }
+*/
 
 func main() {
 	// Parse YAML
@@ -54,23 +61,28 @@ func main() {
 
 	fmt.Printf("%s", yamlFile)
 
-	yaml := parseYaml(yamlFile)
+	//yaml := parseYaml(yamlFile)
+	yamlConfig := millgo.YamlConfig{}
+	//yamlConfig := make(map[interface{}]interface{})
 
-	fmt.Printf("--- yaml:\n%v\n\n", yaml)
+	err = yaml.Unmarshal(yamlFile, &yamlConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("--- yaml:\n%v\n\n", yamlConfig)
+
+	fmt.Printf("%v", yamlConfig.AuditLog.Timestamp)
 
 	// Open file
-	fileHandle, err := os.Open("/Users/brendon/workspace/tmp/Jun-26-00_00_00-05_59_59-2019.psvlog")
+	fileHandle, err := os.Open("data/audit_log_example.csv")
 	if err != nil {
-		log.Fatalf(err)
+		log.Fatal(err)
 	}
 	defer fileHandle.Close()
 
 	// Init CSV File reader
-	csvReader, err := csv.NewReader(fileHandle)
-	if err != nil {
-		log.Fatalf(err)
-	}
-	defer fileHandle.Close()
+	csvReader := csv.NewReader(fileHandle)
 
 	// Process CSV lines
 	// TODO: Can this be a goroutine?
@@ -81,8 +93,15 @@ func main() {
 		} else if err != nil {
 			log.Fatal(err)
 		}
-		accessLogStruct := csvToAccessLogStruct(line, yaml)
+		auditLogStruct := millgo.AuditLog{
+			Evidence:     millgo.EVIDENCE,
+			AuditLog:     millgo.AUDIT_LOG,
+			Timestamp:    line[yamlConfig.AuditLog.Timestamp],
+			PatientId:    line[yamlConfig.AuditLog.PatientId],
+			EmployeeId:   line[yamlConfig.AuditLog.EmployeeId],
+			AccessAction: line[yamlConfig.AuditLog.AccessAction],
+		}
 		// TODO: Print statement
-		fmt.Printf("--- access log:\n%v\n\n", accessLogStruct)
+		fmt.Printf("--- access log:\n%v\n\n", auditLogStruct)
 	}
 }
