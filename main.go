@@ -12,6 +12,9 @@ import (
 	"millgo/packages"
 )
 
+// Unmarshal CSV line to millgo AccessLog struct
+// return AccessLog struct CSV line
+// TODO: rename?
 func csvToAccessLogStruct(csvLine []string, yaml millgo.YamlConfig) millgo.AuditLog {
 	csvLineStruct := millgo.AuditLog{
 		Evidence:     EVIDENCE,
@@ -23,6 +26,9 @@ func csvToAccessLogStruct(csvLine []string, yaml millgo.YamlConfig) millgo.Audit
 	}
 	return csvLineStruct
 }
+
+// Parse YAML files.
+// return millgo YamlConfig struct
 func parseYaml(yamlFile []byte) millgo.YamlConfig {
 	yamlConfig := millgo.YamlConfig{}
 
