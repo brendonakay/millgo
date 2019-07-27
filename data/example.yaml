@@ -1,0 +1,5 @@
+audit_log:
+  timestamp: 2
+  patient_id: 3
+  employee_id: 4
+  access_action: 5

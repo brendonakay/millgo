@@ -64,19 +64,19 @@ type YamlConfig struct {
 		AccessAction int `yaml:"access_action"`
 	} `yaml:"audit_log"`
 
-//	PatientInfo struct {
-//		PatientId int
-//		Field     struct {
-//			Dob      int
-//			FullName int
-//		}
-//	}
-//
-//	EmployeeInfo struct {
-//		EmployeetId int
-//		Fields      struct {
-//			Department int
-//			FullName   int
-//		}
-//	}
+	//	PatientInfo struct {
+	//		PatientId int
+	//		Field     struct {
+	//			Dob      int
+	//			FullName int
+	//		}
+	//	}
+	//
+	//	EmployeeInfo struct {
+	//		EmployeetId int
+	//		Fields      struct {
+	//			Department int
+	//			FullName   int
+	//		}
+	//	}
 }

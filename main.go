@@ -88,7 +88,9 @@ func main() {
 	// TODO: Can this be a goroutine?
 	for {
 		line, err := csvReader.Read()
+		fmt.Printf("--- csv line:\n%s\n\n", line)
 		if err == io.EOF {
+			fmt.Printf("END OF FILE")
 			break
 		} else if err != nil {
 			log.Fatal(err)
