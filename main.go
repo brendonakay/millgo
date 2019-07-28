@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	//"sync"
 
 	"gopkg.in/yaml.v2"
 	"millgo/packages"
@@ -50,13 +51,20 @@ func main() {
 	// Init CSV File reader
 	csvReader := csv.NewReader(fileHandle)
 
+	// Channel sending data to initial transform stage
+	stageOne := make(chan millgo.AuditLog)
+	endOfFile := make(chan bool)
+
 	// Process CSV lines to struct
-	// TODO: Can this be a goroutine?
+	// TODO: Can this be a goroutine? Why, yes it can. In fact, it might
+	//  work best as a generator function that returns a receive only chan.
+	// Perhaps implement a Select?
 	for {
 		line, err := csvReader.Read()
 		fmt.Printf("--- csv line:\n%s\n\n", line)
 		if err == io.EOF {
 			fmt.Printf("END OF FILE")
+			endOfFile <- true
 			break
 		} else if err != nil {
 			log.Fatal(err)
@@ -69,8 +77,22 @@ func main() {
 			EmployeeId:   line[yamlConfig.AuditLog.EmployeeId],
 			AccessAction: line[yamlConfig.AuditLog.AccessAction],
 		}
-		// TODO: Print statement
-		// This should probably send value to channel
-		fmt.Printf("--- access log:\n%v\n\n", auditLogStruct)
+		stageOne <- auditLogStruct
 	}
+
+	go func() {
+		for{
+			select {
+			case s := <-stageOne:
+				fmt.Println(s)
+			case <-endOfFile:
+				break
+			}
+		}
+	}()
+	// This will be the first transform stage. Receiving into Stage 1
+	//for {
+	//	fmt.Println(<-stageOne)
+	//}
+	//wg.Wait()
 }
