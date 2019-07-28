@@ -18,3 +18,11 @@ Go implementation of Mill
 ### Dependencies
  - YAML
    - go get gopkg.in/yaml.v2
+
+### Notes
+ - stageOneChan
+   - (Extract) Unmarshalls data from file to appropriate struct (e.g.; AuditLog, PatientInfo, Evidence, Etc...)
+ - stageTwoChan
+   - (Transform) Perform field operations on line. Divert bad lines to errorChan.
+ - stageThreeChan
+   - (Load) Append lines to CSV for uploader to consume. Or, upload via HTTP to tool in channel.
