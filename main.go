@@ -14,9 +14,6 @@ import (
 )
 
 // Process CSV lines to struct
-// TODO: Can this be a goroutine? Why, yes it can. In fact, it might
-//  work best as a generator function that returns a receive only chan.
-// Perhaps implement a Select?
 func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) (
 	<-chan millgo.AuditLog, <-chan bool) {
 	// Channel sending data to initial transform stage
@@ -47,6 +44,10 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) (
 		close(endOfFile)
 	}()
 	return stageOne, endOfFile
+}
+
+// Transform the lines
+func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 }
 
 func main() {
