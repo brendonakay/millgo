@@ -26,12 +26,9 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) (
 	go func() {
 		for {
 			line, err := reader.Read()
-			fmt.Printf("--- csv line:\n%s\n\n", line)
 			if err == io.EOF {
 				fmt.Printf("END OF FILE")
 				close(stageOne)
-				endOfFile <- true
-				close(endOfFile)
 				break
 			} else if err != nil {
 				log.Fatal(err)
@@ -46,6 +43,8 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) (
 			}
 			stageOne <- auditLogStruct
 		}
+		endOfFile <- true
+		close(endOfFile)
 	}()
 	return stageOne, endOfFile
 }
