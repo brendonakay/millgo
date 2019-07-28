@@ -14,18 +14,16 @@ import (
 )
 
 // Process CSV lines to struct
-func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) (
-	<-chan millgo.AuditLog, <-chan bool) {
+func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
 	// Channel sending data to initial transform stage
 	stageOne := make(chan millgo.AuditLog)
-	endOfFile := make(chan bool)
 
 	go func() {
+		defer close(stageOne)
 		for {
 			line, err := reader.Read()
 			if err == io.EOF {
 				fmt.Printf("END OF FILE")
-				close(stageOne)
 				break
 			} else if err != nil {
 				log.Fatal(err)
@@ -40,18 +38,16 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) (
 			}
 			stageOne <- auditLogStruct
 		}
-		endOfFile <- true
-		close(endOfFile)
 	}()
-	return stageOne, endOfFile
+	return stageOne
 }
 
 // Transform the lines
-func stageTwoChan(stageOneChan <-chan millgo.AuditLog, endOfFile <-chan bool) (
-	<-chan millgo.AuditLog, <-chan bool) {
+func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 	stageTwo := make(chan millgo.AuditLog)
 
 	go func() {
+		defer close(stageTwo)
 		for {
 			line := <-stageOneChan
 			line.AccessAction = "TEST"
@@ -59,7 +55,7 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog, endOfFile <-chan bool) (
 			stageTwo <- line
 		}
 	}()
-	return stageTwo, endOfFile
+	return stageTwo
 }
 
 func main() {
@@ -100,18 +96,16 @@ func main() {
 	csvReader := csv.NewReader(fileHandle)
 
 	// Get stageOne channel extract
-	stageOne, eof := stageOneChan(csvReader, yamlConfig)
+	stageOne := stageOneChan(csvReader, yamlConfig)
 
 	// Get stageTwo channel for transformation
-	stageTwo, eof := stageTwoChan(stageOne, eof)
+	stageTwo := stageTwoChan(stageOne)
 
 	// Read output from stageOne channel
 	for {
 		select {
 		case s := <-stageTwo:
 			fmt.Println(s)
-		case <-eof:
-			return
 		}
 	}
 }
