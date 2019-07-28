@@ -47,7 +47,19 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) (
 }
 
 // Transform the lines
-func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
+func stageTwoChan(stageOneChan <-chan millgo.AuditLog, endOfFile <-chan bool) (
+	<-chan millgo.AuditLog, <-chan bool) {
+	stageTwo := make(chan millgo.AuditLog)
+
+	go func() {
+		for {
+			line := <-stageOneChan
+			line.AccessAction = "TEST"
+
+			stageTwo <- line
+		}
+	}()
+	return stageTwo, endOfFile
 }
 
 func main() {
@@ -87,13 +99,16 @@ func main() {
 	// Init CSV File reader
 	csvReader := csv.NewReader(fileHandle)
 
-	// Get stageOne channel
-	consumer, eof := stageOneChan(csvReader, yamlConfig)
+	// Get stageOne channel extract
+	stageOne, eof := stageOneChan(csvReader, yamlConfig)
+
+	// Get stageTwo channel for transformation
+	stageTwo, eof := stageTwoChan(stageOne, eof)
 
 	// Read output from stageOne channel
 	for {
 		select {
-		case s := <-consumer:
+		case s := <-stageTwo:
 			fmt.Println(s)
 		case <-eof:
 			return
