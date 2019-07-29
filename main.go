@@ -7,19 +7,65 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	//"sync"
 
 	"gopkg.in/yaml.v2"
 	"millgo/packages"
 )
 
+// Process CSV lines to struct
+func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
+	// Channel sending data to initial transform stage
+	stageOne := make(chan millgo.AuditLog)
+
+	go func() {
+		defer close(stageOne)
+		for {
+			line, err := reader.Read()
+			if err == io.EOF {
+				fmt.Printf("END OF FILE")
+				break
+			} else if err != nil {
+				log.Fatal(err)
+			}
+			auditLogStruct := millgo.AuditLog{
+				Evidence:     millgo.EVIDENCE,
+				AuditLog:     millgo.AUDIT_LOG,
+				Timestamp:    line[yamlConfig.AuditLog.Timestamp],
+				PatientId:    line[yamlConfig.AuditLog.PatientId],
+				EmployeeId:   line[yamlConfig.AuditLog.EmployeeId],
+				AccessAction: line[yamlConfig.AuditLog.AccessAction],
+			}
+			stageOne <- auditLogStruct
+		}
+	}()
+	return stageOne
+}
+
+// Transform the lines
+func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
+	stageTwo := make(chan millgo.AuditLog)
+
+	go func() {
+		defer close(stageTwo)
+		for line := range stageOneChan {
+			line.AccessAction = "TEST"
+
+			stageTwo <- line
+		}
+	}()
+	return stageTwo
+}
+
 func main() {
-	// Parse YAML
+	// Retrieve YAML file
 	yamlBin, err := os.Open("data/example.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer yamlBin.Close()
 
+	// Read YAML file
 	yamlFile, err := ioutil.ReadAll(yamlBin)
 	if err != nil {
 		log.Fatal(err)
@@ -27,9 +73,8 @@ func main() {
 
 	fmt.Printf("%s", yamlFile)
 
-	//yaml := parseYaml(yamlFile)
+	// Parse YAML file to config struct
 	yamlConfig := millgo.YamlConfig{}
-	//yamlConfig := make(map[interface{}]interface{})
 
 	err = yaml.Unmarshal(yamlFile, &yamlConfig)
 	if err != nil {
@@ -37,7 +82,6 @@ func main() {
 	}
 
 	fmt.Printf("--- yaml:\n%v\n\n", yamlConfig)
-
 	fmt.Printf("%v", yamlConfig.AuditLog.Timestamp)
 
 	// Open file
@@ -50,27 +94,14 @@ func main() {
 	// Init CSV File reader
 	csvReader := csv.NewReader(fileHandle)
 
-	// Process CSV lines to struct
-	// TODO: Can this be a goroutine?
-	for {
-		line, err := csvReader.Read()
-		fmt.Printf("--- csv line:\n%s\n\n", line)
-		if err == io.EOF {
-			fmt.Printf("END OF FILE")
-			break
-		} else if err != nil {
-			log.Fatal(err)
-		}
-		auditLogStruct := millgo.AuditLog{
-			Evidence:     millgo.EVIDENCE,
-			AuditLog:     millgo.AUDIT_LOG,
-			Timestamp:    line[yamlConfig.AuditLog.Timestamp],
-			PatientId:    line[yamlConfig.AuditLog.PatientId],
-			EmployeeId:   line[yamlConfig.AuditLog.EmployeeId],
-			AccessAction: line[yamlConfig.AuditLog.AccessAction],
-		}
-		// TODO: Print statement
-		// This should probably send value to channel
-		fmt.Printf("--- access log:\n%v\n\n", auditLogStruct)
+	// Get stageOne channel extract
+	stageOne := stageOneChan(csvReader, yamlConfig)
+
+	// Get stageTwo channel for transformation
+	stageTwo := stageTwoChan(stageOne)
+
+	// Read output from stageOne channel
+	for v := range stageTwo {
+		fmt.Println(v)
 	}
 }
