@@ -9,11 +9,12 @@ Go implementation of Mill
  - [x] Models for proof of concept file type
  - [x] CSV to Struct
    - [ ] Test on bad data
- - [ ] Write a transofmration pipeline stage
+ - [x] Write a transofmration pipeline stage
  - [ ] Write an errored rows pipeline stage
  - [ ] Write a successful rows pipeline stage
  - [ ] Split up project packages per domain
    - This includes models, utils, all the things
+ - Change print statements to loggers
 
 ### Dependencies
  - YAML
