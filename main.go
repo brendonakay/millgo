@@ -48,8 +48,7 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 
 	go func() {
 		defer close(stageTwo)
-		for {
-			line := <-stageOneChan
+		for line := range stageOneChan {
 			line.AccessAction = "TEST"
 
 			stageTwo <- line
@@ -102,10 +101,7 @@ func main() {
 	stageTwo := stageTwoChan(stageOne)
 
 	// Read output from stageOne channel
-	for {
-		select {
-		case s := <-stageTwo:
-			fmt.Println(s)
-		}
+	for v := range stageTwo {
+		fmt.Println(v)
 	}
 }
