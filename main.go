@@ -23,8 +23,7 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 		for {
 			line, err := reader.Read()
 			if err == io.EOF {
-				fmt.Printf("END OF FILE")
-				break
+				return
 			} else if err != nil {
 				log.Fatal(err)
 			}
@@ -104,4 +103,5 @@ func main() {
 	for v := range stageTwo {
 		fmt.Println(v)
 	}
+	fmt.Println("CHANNEL FLUSHED")
 }
