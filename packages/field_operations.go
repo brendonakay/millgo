@@ -38,12 +38,12 @@ func truncateValue() {
 
 func MyFieldOps() map[string]interface{} {
 	m := map[string]interface{}{
-		"useConstant": useConstant,
-		"changeDateFormat": changeDateFormat,
-		"useMappedValue": useMappedValue,
-		"removeFromValue": removeFromValue,
+		"useConstant":       useConstant,
+		"changeDateFormat":  changeDateFormat,
+		"useMappedValue":    useMappedValue,
+		"removeFromValue":   removeFromValue,
 		"substituteInValue": substituteInValue,
-		"truncateValue": truncateValue,
+		"truncateValue":     truncateValue,
 	}
 	return m
 }

@@ -55,7 +55,7 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 			for k, v := range fieldOps {
 				switch k {
 				case "useConstant":
-					line.AccessAction = v.(func(string)string)("FOO")
+					line.AccessAction = v.(func(string) string)("FOO")
 				case "changeDateFormat":
 					continue
 				case "useMappedValue":
