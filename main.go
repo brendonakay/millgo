@@ -144,11 +144,6 @@ func main() {
 	// Get stageTwo channel for transformation
 	stageTwo := stageTwoChan(stageOne)
 
+	// StageThree load
 	stageThreeChan(stageTwo)
-
-	// Read output from stageOne channel
-	//for v := range stageTwo {
-	//	fmt.Println(v)
-	//}
-	//fmt.Println("CHANNEL FLUSHED")
 }
