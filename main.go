@@ -42,18 +42,63 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 }
 
 // Transform the lines
+// TODO
+//	- Implement the rest of the fieldOps
 func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 	stageTwo := make(chan millgo.AuditLog)
+
+	fieldOps := millgo.MyFieldOps()
 
 	go func() {
 		defer close(stageTwo)
 		for line := range stageOneChan {
-			line.AccessAction = "TEST"
+			for k, v := range fieldOps {
+				switch k {
+				case "useConstant":
+					line.AccessAction = v.(func(string)string)("FOO")
+				case "changeDateFormat":
+					continue
+				case "useMappedValue":
+					continue
+				case "removeFromValue":
+					continue
+				case "substituteInValue":
+					continue
+				}
+			}
 
 			stageTwo <- line
 		}
 	}()
 	return stageTwo
+}
+
+// Load to file
+// TODO
+//	- Eventually send to multiple different areas.
+//	- Buffered channel?
+func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
+	outFile, err := os.OpenFile("test_output.csv", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer outFile.Close()
+
+	w := csv.NewWriter(outFile)
+
+	for line := range stageTwoChan {
+		s := []string{
+			line.Evidence,
+			line.AuditLog,
+			line.Timestamp,
+			line.PatientId,
+			line.EmployeeId,
+			line.AccessAction,
+		}
+		w.Write(s)
+	}
+
+	w.Flush()
 }
 
 func main() {
@@ -99,9 +144,11 @@ func main() {
 	// Get stageTwo channel for transformation
 	stageTwo := stageTwoChan(stageOne)
 
+	stageThreeChan(stageTwo)
+
 	// Read output from stageOne channel
-	for v := range stageTwo {
-		fmt.Println(v)
-	}
-	fmt.Println("CHANNEL FLUSHED")
+	//for v := range stageTwo {
+	//	fmt.Println(v)
+	//}
+	//fmt.Println("CHANNEL FLUSHED")
 }
