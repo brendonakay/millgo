@@ -17,7 +17,7 @@ FIELD_OPS = {
 */
 
 type Rule interface {
-	Process(*AuditLog)// alternatively use a pointer (and remove the return) if you want to change it in-place
+	Process(*AuditLog)
 }
 
 type UseConstantRule struct {
@@ -25,17 +25,12 @@ type UseConstantRule struct {
 	Constant  string
 }
 
-//func getField(v *AuditLog, field string) string {
-//    r := reflect.ValueOf(v)
-//    //f := reflect.Indirect(r)
-//    return string(r.String())
-//}
-
 func (t UseConstantRule) Process(v *AuditLog) {
 	switch t.FieldName {
 	case "AccessAction":
 		v.AccessAction = t.Constant
-	default: fmt.Printf("DEFAULT HIT IN SWITCH")
+	default:
+		fmt.Printf("DEFAULT HIT IN SWITCH")
 	}
 }
 
@@ -60,4 +55,3 @@ func substituteInValue() {
 func truncateValue() {
 	// TODO: implement
 }
-

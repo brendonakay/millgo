@@ -53,14 +53,12 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 			clientRules := []millgo.Rule{
 				millgo.UseConstantRule{
 					FieldName: "AccessAction",
-					Constant: "FOO",
+					Constant:  "FOO",
 				},
 			}
-
 			for _, rule := range clientRules {
 				rule.Process(&line)
 			}
-
 			stageTwo <- line
 		}
 	}()
@@ -91,7 +89,6 @@ func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 		}
 		w.Write(s)
 	}
-
 	w.Flush()
 }
 
