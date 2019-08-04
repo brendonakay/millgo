@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	//"sync"
 
 	"gopkg.in/yaml.v2"
 	"millgo/packages"
