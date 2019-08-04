@@ -33,26 +33,10 @@ func getField(v *AuditLog, field string) string {
 }
 
 func (t UseConstantRule) Process(v AuditLog) AuditLog {
-	// process here, sadly you probably need reflection to edit the field name provided string dynamically
-	//var m = map[string]interface{}{
-	//	"Evidence":            o.Evidence,
-	//	"AuditLog":            o.AuditLog,
-	//	"Timestamp":           o.Timestamp,
-	//	"PatientId":           o.PatientId,
-	//	"EmployeeId":          o.EmployeeId,
-	//	"AccessAction":        o.AccessAction,
-	//	"EmployeeRole":        o.EmployeeRole,
-	//	"MachineId":           o.MachineId,
-	//	"DataField":           o.DataField,
-	//	"Source":              o.Source,
-	//	"DodcumentAccessType": o.DocumentAccessType,
-	//}
-
-	fmt.Printf("%v", getField(&v, t.FieldName))
-	switch getField(&v, t.FieldName) {
+	switch t.FieldName {
 	case "AccessAction":
-		fmt.Println("HIT!")
-		v.AuditLog = t.Constant
+		v.AccessAction = t.Constant
+	default: fmt.Printf("DEFAULT HIT IN SWITCH")
 	}
 
 	return v

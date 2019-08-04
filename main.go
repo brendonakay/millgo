@@ -46,28 +46,12 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 //	- Implement the rest of the fieldOps
 func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 	stageTwo := make(chan millgo.AuditLog)
-	var line2 millgo.AuditLog
 
 	//fieldOps := millgo.MyFieldOps()
 
 	go func() {
 		defer close(stageTwo)
 		for line := range stageOneChan {
-			//for k, v := range fieldOps {
-			//	switch k {
-			//	case "useConstant":
-			//		line.AccessAction = v.(func(string) string)("FOO")
-			//	case "changeDateFormat":
-			//		continue
-			//	case "useMappedValue":
-			//		continue
-			//	case "removeFromValue":
-			//		continue
-			//	case "substituteInValue":
-			//		continue
-			//	}
-			//}
-
 			clientRules := []millgo.Rule{
 				millgo.UseConstantRule{
 					FieldName: "AccessAction",
@@ -76,10 +60,10 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 			}
 
 			for _, rule := range clientRules {
-				line2 = rule.Process(line)
+				line = rule.Process(line)
 			}
 
-			stageTwo <- line2
+			stageTwo <- line
 		}
 	}()
 	return stageTwo
