@@ -1,7 +1,6 @@
 package millgo
 
 import (
-	"reflect"
 	"fmt"
 )
 
@@ -18,7 +17,7 @@ FIELD_OPS = {
 */
 
 type Rule interface {
-	Process(AuditLog) AuditLog // alternatively use a pointer (and remove the return) if you want to change it in-place
+	Process(*AuditLog)// alternatively use a pointer (and remove the return) if you want to change it in-place
 }
 
 type UseConstantRule struct {
@@ -26,26 +25,22 @@ type UseConstantRule struct {
 	Constant  string
 }
 
-func getField(v *AuditLog, field string) string {
-    r := reflect.ValueOf(v)
-    //f := reflect.Indirect(r)
-    return string(r.String())
-}
+//func getField(v *AuditLog, field string) string {
+//    r := reflect.ValueOf(v)
+//    //f := reflect.Indirect(r)
+//    return string(r.String())
+//}
 
-func (t UseConstantRule) Process(v AuditLog) AuditLog {
+func (t UseConstantRule) Process(v *AuditLog) {
 	switch t.FieldName {
 	case "AccessAction":
 		v.AccessAction = t.Constant
 	default: fmt.Printf("DEFAULT HIT IN SWITCH")
 	}
-
-	return v
 }
 
-func useConstant(c string) string {
-	return c
-}
-
+// TODO
+//	- Put all of these in their own files and use same pattern ase UseConstsnt
 func changeDateFormat() {
 	// TODO: implement
 }
@@ -66,15 +61,3 @@ func truncateValue() {
 	// TODO: implement
 }
 
-// TODO implement this as ClientRules
-func MyFieldOps() map[string]interface{} {
-	m := map[string]interface{}{
-		"useConstant":       useConstant,
-		"changeDateFormat":  changeDateFormat,
-		"useMappedValue":    useMappedValue,
-		"removeFromValue":   removeFromValue,
-		"substituteInValue": substituteInValue,
-		"truncateValue":     truncateValue,
-	}
-	return m
-}
