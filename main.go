@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	//"sync"
 
 	"gopkg.in/yaml.v2"
 	"millgo/packages"
@@ -47,26 +46,18 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 	stageTwo := make(chan millgo.AuditLog)
 
-	fieldOps := millgo.MyFieldOps()
-
 	go func() {
 		defer close(stageTwo)
 		for line := range stageOneChan {
-			for k, v := range fieldOps {
-				switch k {
-				case "useConstant":
-					line.AccessAction = v.(func(string) string)("FOO")
-				case "changeDateFormat":
-					continue
-				case "useMappedValue":
-					continue
-				case "removeFromValue":
-					continue
-				case "substituteInValue":
-					continue
-				}
+			clientRules := []millgo.Rule{
+				millgo.UseConstantRule{
+					FieldName: "AccessAction",
+					Constant:  "FOO",
+				},
 			}
-
+			for _, rule := range clientRules {
+				rule.Process(&line)
+			}
 			stageTwo <- line
 		}
 	}()
@@ -75,7 +66,7 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 
 // Load to file
 // TODO
-//	- Eventually send to multiple different areas.
+//	- Eventually send to multiple different channels, e.g. CSV chan, Err chan...
 //	- Buffered channel?
 func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 	outFile, err := os.OpenFile("test_output.csv", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
@@ -97,7 +88,6 @@ func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 		}
 		w.Write(s)
 	}
-
 	w.Flush()
 }
 
