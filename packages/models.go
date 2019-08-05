@@ -73,7 +73,7 @@ type YamlConfig struct {
 	//	FieldOps map[string]interface{}
 	//} `yaml:"field_operations"`
 
-	FieldOps map[string]interface{} `yaml:"field_operations"`
+	FieldOps map[string]map[string]map[string]string `yaml:"field_operations"`
 
 	//	PatientInfo struct {
 	//		PatientId int

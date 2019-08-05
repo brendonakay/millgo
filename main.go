@@ -42,8 +42,9 @@ func stageOneChan(reader *csv.Reader, yc millgo.YamlConfig) <-chan millgo.AuditL
 }
 
 // Transform the lines
-func stageTwoChan(stageOneChan <-chan millgo.AuditLog, yc []byte) <-chan millgo.AuditLog {
+func stageTwoChan(stageOneChan <-chan millgo.AuditLog, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
 	stageTwo := make(chan millgo.AuditLog)
+	yc := yamlConfig.FieldOps["audit_log"]
 	var clientRules = []millgo.Rule{}
 
 	// TODO - Implement the rest of the field ops
@@ -112,13 +113,14 @@ func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 }
 
 func runAuditLogStages(reader *csv.Reader, yamlConfig millgo.YamlConfig) {
-	yc := yamlConfig["audit_log"]
+	//yc := yamlConfig.AuditLog
+	//fo := yamlConfig.FieldOps
 
 	// Get stageOne channel extract
-	stageOne := stageOneChan(csvReader, yc)
+	stageOne := stageOneChan(reader, yamlConfig)
 
 	// Get stageTwo channel for transformation
-	stageTwo := stageTwoChan(stageOne)
+	stageTwo := stageTwoChan(stageOne, yamlConfig)
 
 	// StageThree load
 	stageThreeChan(stageTwo)
@@ -148,6 +150,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("--- audit log: %v", yamlConfig.FieldOps["audit_log"]["constant"])
 	for k, v := range yamlConfig.FieldOps {
 		fmt.Printf("key[%s] value[%s]\n", k, v)
 	}
@@ -160,7 +163,7 @@ func main() {
 	defer fileHandle.Close()
 
 	// Init CSV File reader
-	csvReader := csv.NewReader(fileHandle)
+    csvReader := csv.NewReader(fileHandle)
 
-	runAuditLogStages(csvReader, yamlConfig.FieldOps["audit_log"])
+	runAuditLogStages(csvReader, yamlConfig)
 }
