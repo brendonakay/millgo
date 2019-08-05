@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v2"
+
 	"millgo/packages"
 )
 
@@ -51,8 +52,12 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
 		for line := range stageOneChan {
 			clientRules := []millgo.Rule{
 				millgo.UseConstantRule{
-					FieldName: "AccessAction",
+					FieldName: "AccessAction", // TODO - Use YAML for these fields
 					Constant:  "FOO",
+				},
+				millgo.ChangeDateFormatRule{
+					FieldName: "Timestamp",
+					NewDateFormat: "2006-01-02",
 				},
 			}
 			for _, rule := range clientRules {
