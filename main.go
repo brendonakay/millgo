@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
+	//"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -17,6 +17,7 @@ import (
 func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
 	// Channel sending data to initial transform stage
 	stageOne := make(chan millgo.AuditLog)
+	yc := yamlConfig.AuditLog
 
 	go func() {
 		defer close(stageOne)
@@ -30,10 +31,10 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 			auditLogStruct := millgo.AuditLog{
 				EvidenceConstant:     millgo.EVIDENCE,
 				AuditLogConstant:     millgo.AUDIT_LOG,
-				Timestamp:    line[yamlConfig.AuditLog.Timestamp],
-				PatientId:    line[yamlConfig.AuditLog.PatientId],
-				EmployeeId:   line[yamlConfig.AuditLog.EmployeeId],
-				AccessAction: line[yamlConfig.AuditLog.AccessAction],
+				Timestamp:    line[yc.Timestamp],
+				PatientId:    line[yc.PatientId],
+				EmployeeId:   line[yc.EmployeeId],
+				AccessAction: line[yc.AccessAction],
 			}
 			stageOne <- auditLogStruct
 		}
@@ -42,24 +43,30 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 }
 
 // Transform the lines
-// TODO
-//	- Implement the rest of the fieldOps
-func stageTwoChan(stageOneChan <-chan millgo.AuditLog) <-chan millgo.AuditLog {
+func stageTwoChan(stageOneChan <-chan millgo.AuditLog, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
 	stageTwo := make(chan millgo.AuditLog)
+	yc := yamlConfig.FieldOps["audit_log"]
+	var clientRules = []millgo.Rule{}
+
+	// TODO - Implement the rest of the field ops
+	for k, v := range yc {
+		switch k {
+		case "constant":
+			clientRules = append(clientRules, millgo.UseConstantRule{
+				FieldName: v["field"],
+				Constant:  v["value"],
+				})
+		case "date_fmt":
+			clientRules = append(clientRules, millgo.ChangeDateFormatRule{
+				FieldName: v["field"],
+				NewDateFormat: v["new_date_format"],
+			})
+		}
+	}
 
 	go func() {
 		defer close(stageTwo)
 		for line := range stageOneChan {
-			clientRules := []millgo.Rule{
-				millgo.UseConstantRule{
-					FieldName: "AccessAction", // TODO - Use YAML for these fields
-					Constant:  "FOO",
-				},
-				millgo.ChangeDateFormatRule{
-					FieldName: "Timestamp",
-					NewDateFormat: "2006-01-02",
-				},
-			}
 			for _, rule := range clientRules {
 				rule.Process(&line)
 			}
@@ -96,6 +103,20 @@ func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 	w.Flush()
 }
 
+func runAuditLogStages(reader *csv.Reader, yamlConfig millgo.YamlConfig) {
+	//yc := yamlConfig.AuditLog
+	//fo := yamlConfig.FieldOps
+
+	// Get stageOne channel extract
+	stageOne := stageOneChan(reader, yamlConfig)
+
+	// Get stageTwo channel for transformation
+	stageTwo := stageTwoChan(stageOne, yamlConfig)
+
+	// StageThree load
+	stageThreeChan(stageTwo)
+}
+
 func main() {
 	// Retrieve YAML file
 	yamlBin, err := os.Open("data/example.yaml")
@@ -110,7 +131,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%s", yamlFile)
+	//fmt.Printf("%s", yamlFile)
 
 	// Parse YAML file to config struct
 	yamlConfig := millgo.YamlConfig{}
@@ -120,8 +141,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("--- yaml:\n%v\n\n", yamlConfig)
-	fmt.Printf("%v", yamlConfig.AuditLog.Timestamp)
+	//fmt.Printf("--- audit log: %v", yamlConfig.FieldOps["audit_log"]["constant"])
+	//for k, v := range yamlConfig.FieldOps {
+	//	fmt.Printf("key[%s] value[%s]\n", k, v)
+	//}
 
 	// Open file
 	fileHandle, err := os.Open("data/audit_log_example.csv")
@@ -131,14 +154,7 @@ func main() {
 	defer fileHandle.Close()
 
 	// Init CSV File reader
-	csvReader := csv.NewReader(fileHandle)
+    csvReader := csv.NewReader(fileHandle)
 
-	// Get stageOne channel extract
-	stageOne := stageOneChan(csvReader, yamlConfig)
-
-	// Get stageTwo channel for transformation
-	stageTwo := stageTwoChan(stageOne)
-
-	// StageThree load
-	stageThreeChan(stageTwo)
+	runAuditLogStages(csvReader, yamlConfig)
 }

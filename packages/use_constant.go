@@ -13,7 +13,7 @@ type UseConstantRule struct {
 //	- Use reflection to lookup field
 func (t UseConstantRule) Process(v *AuditLog) {
 	switch t.FieldName {
-	case "AccessAction":
+	case "access_action":
 		v.AccessAction = t.Constant
 	default:
 		fmt.Printf("No field match for rule")

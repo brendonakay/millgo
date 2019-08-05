@@ -14,7 +14,7 @@ type ChangeDateFormatRule struct {
 //	- Use reflection to lookup field
 func (t ChangeDateFormatRule) Process(v *AuditLog) {
 	switch t.FieldName {
-	case "Timestamp":
+	case "timestamp":
 		// time.Parse returns meta information about line being parsed
 		// could be useful for debugging field op
 		timestamp, _ := time.Parse(t.NewDateFormat, v.Timestamp)

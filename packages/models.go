@@ -30,19 +30,19 @@ type AuditLog struct {
 }
 
 type AuditLogV2 struct {
-	Evidence           string
-	AuditLog           string
-	Timestamp          string
-	PatientId          string
-	EmployeeId         string
-	AccessAction       string
-	EmployeeRole       string
-	MachineId          string
-	DataField          string
-	Source             string
-	DocumentAccessType string
-	EncounterDetails   string
-	AdditionalData     string
+	EvidenceConstant   string `json:"evidence_constant"`
+	AuditLogConstant   string `json:"audit_log_constant"`
+	Timestamp          string `json:"timestamp"`
+	PatientId          string `json:"patient_id"`
+	EmployeeId         string `json:"employee_id"`
+	AccessAction       string `json:"access_action"`
+	EmployeeRole       string `json:"employee_role"`
+	MachineId          string `json:"machein_id"`
+	DataField          string `json:"data_field"`
+	Source             string `json:"source"`
+	DocumentAccessType string `json:"document_access_type"`
+	EncounterDetails   string `json:"encounter_details"`
+	AdditionalData     string `json:"additional_data"`
 }
 
 type PatientInfo struct {
@@ -68,6 +68,12 @@ type YamlConfig struct {
 		EmployeeId   int `yaml:"employee_id"`
 		AccessAction int `yaml:"access_action"`
 	} `yaml:"audit_log"`
+
+	//FieldOperations struct {
+	//	FieldOps map[string]interface{}
+	//} `yaml:"field_operations"`
+
+	FieldOps map[string]map[string]map[string]string `yaml:"field_operations"`
 
 	//	PatientInfo struct {
 	//		PatientId int

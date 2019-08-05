@@ -2,6 +2,7 @@
 Go implementation of Mill
 
 ### TODO
+ - [ ] Benchmark against Python
  - [ ] Arg parser
  - [ ] Finish YAML parsing logic.
    - Field Ops parsing
@@ -11,6 +12,7 @@ Go implementation of Mill
    - This includes models, utils, all the things
    - Put domain specific files in respective directories
  - [ ] Change print statements to loggers
+ - [ ] Implement exclude list
  - [x] Scanner that reads CSV
  - [x] YAML parser
  - [x] Write a successful rows pipeline stage
@@ -30,3 +32,14 @@ Go implementation of Mill
    - (Transform) Perform field operations on line. Divert bad lines to errorChan.
  - stageThreeChan
    - (Load) Append lines to CSV for uploader to consume. Or, upload via HTTP to tool in channel.
+
+Field operations are methods of the operation type that implement the Rule interface. For example...
+```Go
+type ChangeDateFormatRule struct {
+	FieldName string
+	NewDateFormat  string
+}
+func (t ChangeDateFormatRule) Process(v *AuditLog) {
+	// Transformation logic goes here
+}
+```
