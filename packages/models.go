@@ -8,6 +8,10 @@ const (
 	EOF           = "END OF FILE"
 )
 
+type Rule interface {
+	Process(*AuditLog)
+}
+
 /* TODO
 - turn this into JSON
 */
