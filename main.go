@@ -28,8 +28,8 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 				log.Fatal(err)
 			}
 			auditLogStruct := millgo.AuditLog{
-				Evidence:     millgo.EVIDENCE,
-				AuditLog:     millgo.AUDIT_LOG,
+				EvidenceConstant:     millgo.EVIDENCE,
+				AuditLogConstant:     millgo.AUDIT_LOG,
 				Timestamp:    line[yamlConfig.AuditLog.Timestamp],
 				PatientId:    line[yamlConfig.AuditLog.PatientId],
 				EmployeeId:   line[yamlConfig.AuditLog.EmployeeId],
@@ -84,8 +84,8 @@ func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 
 	for line := range stageTwoChan {
 		s := []string{
-			line.Evidence,
-			line.AuditLog,
+			line.EvidenceConstant,
+			line.AuditLogConstant,
 			line.Timestamp,
 			line.PatientId,
 			line.EmployeeId,
