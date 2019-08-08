@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	//"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -29,12 +28,12 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 				log.Fatal(err)
 			}
 			auditLogStruct := millgo.AuditLog{
-				EvidenceConstant:     millgo.EVIDENCE,
-				AuditLogConstant:     millgo.AUDIT_LOG,
-				Timestamp:    line[yc.Timestamp],
-				PatientId:    line[yc.PatientId],
-				EmployeeId:   line[yc.EmployeeId],
-				AccessAction: line[yc.AccessAction],
+				EvidenceConstant: millgo.EVIDENCE,
+				AuditLogConstant: millgo.AUDIT_LOG,
+				Timestamp:        line[yc.Timestamp],
+				PatientId:        line[yc.PatientId],
+				EmployeeId:       line[yc.EmployeeId],
+				AccessAction:     line[yc.AccessAction],
 			}
 			stageOne <- auditLogStruct
 		}
@@ -55,11 +54,12 @@ func stageTwoChan(stageOneChan <-chan millgo.AuditLog, yamlConfig millgo.YamlCon
 			clientRules = append(clientRules, millgo.UseConstantRule{
 				FieldName: v["field"],
 				Constant:  v["value"],
-				})
+			})
 		case "date_fmt":
 			clientRules = append(clientRules, millgo.ChangeDateFormatRule{
-				FieldName: v["field"],
-				NewDateFormat: v["new_date_format"],
+				FieldName:      v["field"],
+				NewDateFormat:  v["new_date_format"],
+				OrigDateFormat: v["orig_date_format"],
 			})
 		}
 	}
@@ -104,9 +104,6 @@ func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 }
 
 func runAuditLogStages(reader *csv.Reader, yamlConfig millgo.YamlConfig) {
-	//yc := yamlConfig.AuditLog
-	//fo := yamlConfig.FieldOps
-
 	// Get stageOne channel extract
 	stageOne := stageOneChan(reader, yamlConfig)
 
@@ -154,7 +151,7 @@ func main() {
 	defer fileHandle.Close()
 
 	// Init CSV File reader
-    csvReader := csv.NewReader(fileHandle)
+	csvReader := csv.NewReader(fileHandle)
 
 	runAuditLogStages(csvReader, yamlConfig)
 }

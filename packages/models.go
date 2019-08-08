@@ -9,24 +9,24 @@ const (
 )
 
 type Rule interface {
-	Process(*AuditLog)
+	Process(*AuditLog) error
 }
 
 /* TODO
 - turn this into JSON
 */
 type AuditLog struct {
-	EvidenceConstant   string `json:"evidence_constant"`
-	AuditLogConstant   string `json:"audit_log_constant"`
-	Timestamp          string `json:"timestamp"`
-	PatientId          string `json:"patient_id"`
-	EmployeeId         string `json:"employee_id"`
-	AccessAction       string `json:"access_action"`
-	EmployeeRole       string `json:"employee_role"`
-	MachineId          string `json:"machein_id"`
-	DataField          string `json:"data_field"`
-	Source             string `json:"source"`
-	DocumentAccessType string `json:"document_access_type"`
+	EvidenceConstant   string `json:"Evidence_constant"`
+	AuditLogConstant   string `json:"Audit_log_constant"`
+	Timestamp          string `json:"Timestamp"`
+	PatientId          string `json:"Patient_id"`
+	EmployeeId         string `json:"Employee_id"`
+	AccessAction       string `json:"Access_action"`
+	EmployeeRole       string `json:"Employee_role"`
+	MachineId          string `json:"Machein_id"`
+	DataField          string `json:"Data_field"`
+	Source             string `json:"Source"`
+	DocumentAccessType string `json:"Document_access_type"`
 }
 
 type AuditLogV2 struct {
@@ -63,15 +63,11 @@ type EmployeeInfo struct {
 
 type YamlConfig struct {
 	AuditLog struct {
-		Timestamp    int `yaml:"timestamp"`
-		PatientId    int `yaml:"patient_id"`
-		EmployeeId   int `yaml:"employee_id"`
-		AccessAction int `yaml:"access_action"`
+		Timestamp    int `yaml:"Timestamp"`
+		PatientId    int `yaml:"Patient_id"`
+		EmployeeId   int `yaml:"Employee_id"`
+		AccessAction int `yaml:"Access_action"`
 	} `yaml:"audit_log"`
-
-	//FieldOperations struct {
-	//	FieldOps map[string]interface{}
-	//} `yaml:"field_operations"`
 
 	FieldOps map[string]map[string]map[string]string `yaml:"field_operations"`
 
