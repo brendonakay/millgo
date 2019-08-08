@@ -2,6 +2,7 @@ package millgo
 
 import (
 	"fmt"
+	"reflect"
 )
 
 type UseConstantRule struct {
@@ -11,13 +12,18 @@ type UseConstantRule struct {
 
 // TODO
 //	- Use reflection to lookup field
-func (t UseConstantRule) Process(v *AuditLog) {
-	switch t.FieldName {
-	case "access_action":
-		v.AccessAction = t.Constant
-	default:
-		fmt.Printf("No field match for rule")
+func (t UseConstantRule) Process(v *AuditLog) error {
+	// Use Reflect to get struct field dynamically
+	AuditLogValue := reflect.ValueOf(v).Elem()
+	AuditLogFieldValue := AuditLogValue.FieldByName(t.FieldName)
+
+	if !AuditLogFieldValue.IsValid() {
+		return fmt.Errorf("No such field: %s in AuditLog", t.FieldName)
 	}
+
+	AuditLogFieldValue.SetString(t.Constant)
+
+	return nil
 }
 
 // TODO
