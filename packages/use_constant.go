@@ -10,8 +10,6 @@ type UseConstantRule struct {
 	Constant  string
 }
 
-// TODO
-//	- Use reflection to lookup field
 func (t UseConstantRule) Process(v *AuditLog) error {
 	// Use Reflect to get struct field dynamically
 	AuditLogValue := reflect.ValueOf(v).Elem()

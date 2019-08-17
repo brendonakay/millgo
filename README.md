@@ -13,6 +13,7 @@ Go implementation of Mill
    - Put domain specific files in respective directories
  - [ ] Change print statements to loggers
  - [ ] Implement exclude list
+ - [x] Use reflection for dynamic struct field lookup from string
  - [x] Scanner that reads CSV
  - [x] YAML parser
  - [x] Write a successful rows pipeline stage
