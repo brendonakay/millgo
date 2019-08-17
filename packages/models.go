@@ -63,10 +63,10 @@ type EmployeeInfo struct {
 
 type YamlConfig struct {
 	AuditLog struct {
-		Timestamp    int `yaml:"Timestamp"`
-		PatientId    int `yaml:"Patient_id"`
-		EmployeeId   int `yaml:"Employee_id"`
-		AccessAction int `yaml:"Access_action"`
+		Timestamp    int `yaml:"timestamp"`
+		PatientId    int `yaml:"patientId"`
+		EmployeeId   int `yaml:"employeeId"`
+		AccessAction int `yaml:"accessAction"`
 	} `yaml:"audit_log"`
 
 	FieldOps map[string]map[string]map[string]string `yaml:"field_operations"`

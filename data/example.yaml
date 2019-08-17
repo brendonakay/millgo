@@ -1,15 +1,10 @@
 # TODO - Maybe split this into two files; schema mapping and field operations
 audit_log:
-  Timestamp: 2
-  Patient_id: 3
-  Employee_id: 4
-  Access_action: 5
+  timestamp: 2
+  patientId: 3
+  employeeId: 4
+  accessAction: 5
 field_operations:
-  #  audit_log:
-  #    access_action:
-  #      constant: "FOO"
-  #    timestamp:
-  #      date_fmt: "2006-01-02"
   audit_log:
     constant:
       field: "AccessAction"

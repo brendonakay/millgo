@@ -2,24 +2,27 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
 	"millgo/packages"
 )
 
-// Process CSV lines to struct
-func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
-	// Channel sending data to initial transform stage
-	stageOne := make(chan millgo.AuditLog)
-	yc := yamlConfig.AuditLog
+
+// Line operations
+func stageZeroChan(reader *csv.Reader, excludeList []string) <-chan []string {
+	stageZero := make(chan []string)
+	//errorChan := make(chan interface{})
+	block := false
 
 	go func() {
-		defer close(stageOne)
+		defer close(stageZero)
 		for {
 			line, err := reader.Read()
 			if err == io.EOF {
@@ -27,6 +30,33 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 			} else if err != nil {
 				log.Fatal(err)
 			}
+			for _, i := range excludeList {
+				if strings.Contains(strings.Join(line, ""), i) {
+					block = true
+					fmt.Println(line)
+					// TODO: Get errorChan working!
+					//errorChan <- line
+					break
+				}
+			}
+			if block != true {
+				stageZero <- line
+			} else {
+				block = false
+			}
+		}
+	}()
+	return stageZero
+}
+
+// Unmarshall CSV line for field operations
+func stageOneChan(stageZeroChan <-chan []string, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
+	stageOne := make(chan millgo.AuditLog)
+	yc := yamlConfig.AuditLog
+
+	go func() {
+		defer close(stageOne)
+		for line := range stageZeroChan {
 			auditLogStruct := millgo.AuditLog{
 				EvidenceConstant: millgo.EVIDENCE,
 				AuditLogConstant: millgo.AUDIT_LOG,
@@ -41,7 +71,7 @@ func stageOneChan(reader *csv.Reader, yamlConfig millgo.YamlConfig) <-chan millg
 	return stageOne
 }
 
-// Transform the lines
+// Field operations / client Rules
 func stageTwoChan(stageOneChan <-chan millgo.AuditLog, yamlConfig millgo.YamlConfig) <-chan millgo.AuditLog {
 	stageTwo := make(chan millgo.AuditLog)
 	yc := yamlConfig.FieldOps["audit_log"]
@@ -103,15 +133,15 @@ func stageThreeChan(stageTwoChan <-chan millgo.AuditLog) {
 	w.Flush()
 }
 
-func runAuditLogStages(reader *csv.Reader, yamlConfig millgo.YamlConfig) {
-	// Get stageOne channel extract
-	stageOne := stageOneChan(reader, yamlConfig)
-
-	// Get stageTwo channel for transformation
+func runAuditLogStages(reader *csv.Reader, yamlConfig millgo.YamlConfig, excludeList []string) {
+	stageZero := stageZeroChan(reader, excludeList)
+	stageOne := stageOneChan(stageZero, yamlConfig)
 	stageTwo := stageTwoChan(stageOne, yamlConfig)
-
-	// StageThree load
 	stageThreeChan(stageTwo)
+	// Flush errorChan
+	//for line := range err {
+	//	fmt.Println(line)
+	//}
 }
 
 func main() {
@@ -128,8 +158,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//fmt.Printf("%s", yamlFile)
-
 	// Parse YAML file to config struct
 	yamlConfig := millgo.YamlConfig{}
 
@@ -138,11 +166,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//fmt.Printf("--- audit log: %v", yamlConfig.FieldOps["audit_log"]["constant"])
-	//for k, v := range yamlConfig.FieldOps {
-	//	fmt.Printf("key[%s] value[%s]\n", k, v)
-	//}
-
 	// Open file
 	fileHandle, err := os.Open("data/audit_log_example.csv")
 	if err != nil {
@@ -150,8 +173,11 @@ func main() {
 	}
 	defer fileHandle.Close()
 
+	// TODO: Make this a file reader
+	excludeList := []string{"foo", "bar", "Chart Review Tab"}
+
 	// Init CSV File reader
 	csvReader := csv.NewReader(fileHandle)
 
-	runAuditLogStages(csvReader, yamlConfig)
+	runAuditLogStages(csvReader, yamlConfig, excludeList)
 }
